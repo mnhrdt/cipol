@@ -1,0 +1,41 @@
+Architecture for cipol
+----------------------
+
+Cipol is a tool for remote code execution in image procesing.  Its goal
+is to verify the reproducibility of IPOL articles without the need
+download and compile any code.
+
+The server installation has the following ingredients:
+
+NOT INCLUDED:
+	* mini_httpd: a web server with cgi support
+	* sshd: needed for creating a local chroot jail
+	* gcc: or any C compiler for compiling the code locally
+
+INCLUDED:
+	* iio: for reading and writing images
+	* nurse: to run the user-supplied programs in a controlled environment
+	* index.html, cgi-bin/run{,c}, run_single.sh: webpage and cgi files
+
+System configuration options:
+
+$CIPOL_ROOT : contains index.html and cgi-bin/run.cgi
+$CIPOL_LOCAL_SCRATCH
+$CIPOL_LOCK_FILE (not needed, actually depends on the local scratch)
+$CIPOL_JAIL_ROOT (e.g. "/home/jail")
+$CIPOL_JAIL_USER (e.g. "bush")
+$CIPOL_JAIL_ID (e.g. $CIPOL_ROOT/id_rsa.bush.priv)
+
+$CIPOL_CC="c99 -Wall -Wextra -Werror -pedantic-errors -static -O3 -fopenmp"
+$CIPOL_CC_LIBS="iio.o -lm -lpng -ltiff -ljpeg ..."
+
+
+How to install:
+
+1. verify that you have all the requirements (mini_httpd, sshd and a compiler)
+2. 
+
+
+
+
+# vim: set tw=71:

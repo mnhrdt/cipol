@@ -1,0 +1,9 @@
+==NURSE== setting AS = 150000000 160000000
+==NURSE== setting CPU = 20 21
+==NURSE== setting FSIZE = 5242880 5242880
+==NURSE== setting NOFILE = 10 10
+==NURSE== setting NPROC = 10 10
+==NURSE== argv[0] = "./program.c.out"
+==NURSE== DIAG running time 0.0540051 seconds
+==NURSE== done [0 = 0]
+==NURSE== DIAG exit status 0

@@ -1,0 +1,1 @@
+./mini_httpd/mini_httpd -D -p 8910 -d `pwd` -l /dev/stdout -c "cgi-bin/*"

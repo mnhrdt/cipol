@@ -1,0 +1,2 @@
+#gcc -std=gnu99 -I /home/coco/src/cgic205/ -L /home/coco/src/cgic205/ run.c  -lcgic -o run.cgi -lssl -pedantic -pedantic-errors -Wall -Wextra -Wno-unused
+colorgcc -std=gnu99 -I /home/coco/src/cgic205/ -L /home/coco/src/cgic205/ run.c  -lcgic -o run.cgi -lcrypto
