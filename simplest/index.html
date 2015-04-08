@@ -1,0 +1,109 @@
+<html>
+	<head>
+		<title>C Image Processing Online</title>
+		<style type="text/css"><!--
+			h1 { color:darkgreen }
+			h2 { color:brown }
+			.win { color:green }
+			.fail { color:red }
+			.black { color:black }
+			pre {
+				color:black;
+				border-style:solid;
+				border-width:1px;
+				border-color:black;
+				background:lightgray;
+				padding:20px 20px 20px 20px;
+			}
+			/*
+			textarea { background: #efefef; }
+			*/
+			.index {
+				color:blue;
+				/*
+				border-style:solid;
+				border-width:0px;
+				border-color:black;
+				*/
+				padding:20px 20px 20px 20px;
+			}
+			--></style>
+	</head>
+
+	<body>
+
+			<h1>C Image Processing Online</h1>
+			<p style="font-style:italic;font-size:small;">
+			A tool for testing and sharing single-file programs.
+			</p>
+
+			<h2>Program evaluator</h2>
+
+			<form method="post" action="cgi-bin/run.cgi">
+				Program written in:
+				<select name="language">
+					<option value="C">C</option>
+					<!--
+					<option value="c89">C 89</option>
+					-->
+					<option value="C++">C++</option>
+					<option value="Matlab">Matlab</option>
+					<option value="Pyhton">Pyhton</option>
+					<option value="Fortran">Fortran</option>
+					<!--
+					<option value="C">Country<option>
+					<option value="C++11">Western</option>
+					-->
+				</select>
+				<br />
+				<textarea name="code" cols="80" rows="25">
+#include &lt;stdio.h&gt;
+
+int main()
+{
+	printf("hello, world!\n");
+
+	return 0;
+}
+</textarea>
+
+				<br />
+				Arguments: <input name="args" type="text" size="60" />
+				<input type="submit" value="run" />
+			</form>
+
+			<h2>What is this?</h2>
+
+			<p>
+			This is a tool to evaluate image processing algorithms online.  You write
+			your program in C and we run it in our computer.  If the compulation and
+			execution are successful, you will see the output of your program and any
+			PNG images that it creates will be displayed.
+			</p>
+
+			<p>
+			The program is compiled and run in a controlled environment, where it can
+			probably do no harm, even if it tries to.  The program is allowed to run
+			for at most 10 seconds of CPU time and it can use at most 100MB of
+			memory.
+			</p>
+
+
+			<hr />
+
+			<!--
+			<p>
+			<a href="http://validator.w3.org/check?uri=referer"><img
+				src="http://www.w3.org/Icons/valid-xhtml10"
+				alt="Valid XHTML 1.0 Strict" height="31" width="88" /></a>
+			</p>
+			-->
+
+			<p style="text-align:right;font-style:italic;font-size:small;">
+			Last change: 22 march 2015
+			</p>
+
+	</body>
+</html>
+<!-- vim: ts=2 sw=2:
+-->

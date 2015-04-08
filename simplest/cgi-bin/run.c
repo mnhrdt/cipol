@@ -164,7 +164,8 @@ static void do_submission_log(struct submission *e)
 	snprintf(e->fname_log, MAX_FIELD_SIZE, "/tmp/cacalogs/%s_%s.log",
 			e->time_string, e->ip4);
 	logfile = fopen(e->fname_log, "w");
-	if (!logfile) close_with_cgi_error("CAN NOT CREATE LOGFILE");
+	if (!logfile)
+		close_with_cgi_error("CAN NOT CREATE LOG \"%s\"", e->fname_log);
 	fprintf(logfile, "epoch: %ju\n", (uintmax_t)e->epoch_time);
 	fprintf(logfile, "time: %s\n", e->time_string);
 	fprintf(logfile, "ip4: %s\n", e->ip4);
@@ -200,9 +201,11 @@ static void do_submission_display(struct submission *e)
 	fprintf(cgiOut, "<form method=\"post\" action=\"run.cgi\">\n");
 	fprintf(cgiOut, "Language: <select name=\"language\">\n");
 	fprintf(cgiOut, "<option value=\"C\">C</option>\n");
-	fprintf(cgiOut, "<option value=\"C89\">C89</option>\n");
-	fprintf(cgiOut, "<option value=\"C++11\">C++</option>\n");
-	fprintf(cgiOut, "<option value=\"Matlab\">Matlab</option>\n");
+	fprintf(cgiOut, "<option value=\"C++\">C++</option>\n");
+	fprintf(cgiOut, "<option value=\"Matlab\"%s>Matlab</option>\n",
+			0==strcmp(e->submitted_language, "Matlab")?
+			" selected=\"selected\"":"");
+	fprintf(cgiOut, "<option value=\"Python\">Python</option>\n");
 	fprintf(cgiOut, "<option value=\"Fortran\">Fortran</option>\n");
 	fprintf(cgiOut, "</select>\n<br />");
         //fprintf(cgiOut, "<p><b>Language</b>: %s</p>\n", e->submitted_language);
@@ -210,7 +213,7 @@ static void do_submission_display(struct submission *e)
 	//fprintf(cgiOut, "<p><b>Arguments</b>: %s</p>\n", e->submitted_args);
         //fprintf(cgiOut, "<p><b>Code</b>:</p>\n\n<blockquote><pre>\n");
         //fprintf(cgiOut, "<p><b>Code</b>:</p>\n\n"
-	fprintf(cgiOut, "<textarea name=\"code\" cols=\"80\" rows=\"26\">\n");
+	fprintf(cgiOut, "<textarea name=\"code\" cols=\"80\" rows=\"24\">\n");
 	fprintf(cgiOut, "%s\n", e->submitted_code);
 	//char tt[]={0,'\0'}, *t, *s = e->submitted_code;
 	//int c; while ((c = *s++) != 0) {
@@ -370,14 +373,14 @@ static void do_check_c(struct submission *e)
 // CALL THE SHELL SCRIPT "avalua.sh" WITHIN A CHROOTED ENVIRONMENT
 static void do_check_octave(struct submission *e)
 {
+	char *evline_o = "cd " BN " && ./run_single_octave.sh " HACK_CODE_O;
+	fprintf(cgiOut, "<!--<p>evaluation line: \"%s\"</p>-->\n", evline_o);
 	{
 		FILE *f = fopen(HACK_ARGS, "w");
 		if (!f) printf("fopen %s failed\n\n", HACK_ARGS);
 		fprintf(f, "%s\n", e->submitted_args);
 		fclose(f);
 	}
-	char *evline_o = "cd " BN " && ./run_single_octave.sh " HACK_CODE_O;
-	fprintf(cgiOut, "<!--evaluation line: \"%s\"-->\n", evline_o);
 
 	FILE *f = popen(evline_o, "r");
 
@@ -551,6 +554,7 @@ int cgiMain()
 		close_with_cgi_error("unrecognized language \"%s\"\n",
 				e->submitted_language);
 
+	if (0 == strcmp(e->submitted_language, "C")){
 	fprintf(cgiOut, "<h3>Compilation</h3>\n");
 	if (!e->compilation_success)
 	{
@@ -563,6 +567,7 @@ int cgiMain()
 	}
 	else
 		fprintf(cgiOut, "<blockquote><p><b class=\"win\">CORRECT</b></p></blockquote>");
+	}
 
 
 	fprintf(cgiOut, "<!--<h3>Running of the program</h3>-->\n");

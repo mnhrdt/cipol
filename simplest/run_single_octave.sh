@@ -7,24 +7,24 @@ IDENTITY="/home/coco/ipol/cipol/simplest/id_rsa.obama.priv"
 EVIL="obama@localhost"
 #JAIL="/home/jail"
 
-LOCAL_SCRATCH_PART=scratches/local_scratch
-LOCAL_SCRATCH=/home/coco/ipol/cipol/$LOCAL_SCRATCH_PART
-REMOTE_SCRATCH=/tmp/cipol_remote_scratch
+LOCAL_SCRATCH_PART=scratches/ocipol_local_scratch
+LOCAL_SCRATCH=/home/coco/ipol/cipol/simplest/$LOCAL_SCRATCH_PART
+REMOTE_SCRATCH=/tmp/ocipol_remote_scratch
 
-SETRLIM="nurse AS 150000000 160000000 CPU 20 21 NPROC 10 10 NOFILE 10 10 FSIZE 5242880 5242880 --"
+SETRLIM="/home/obama/bin/nurse AS 450000000 460000000 CPU 5 6 NPROC 14 15 NOFILE 10 10 FSIZE 5242880 5242880 --"
 
 # check number of arguments
-if [ $# != "2" ]; then
-	echo "usage:\n\t ./run_single.sh executable argsfile"
+if [ $# != "1" ]; then
+	echo "usage:\n\t ./run_single_octave.sh program.m"
 	exit 1
 fi
 
 
 TAINTED_EXE=$1
-TAINTED_ARGS=$2
+#TAINTED_ARGS=$2
 
-UNTAINTED_ARGS=${TAINTED_ARGS}u
-cat $TAINTED_ARGS | tr \''\()[]#${}"&|^?' X >$UNTAINTED_ARGS
+#UNTAINTED_ARGS=${TAINTED_ARGS}u
+#cat $TAINTED_ARGS | tr \''\()[]#${}"&|^?' X >$UNTAINTED_ARGS
 
 
 
@@ -50,50 +50,51 @@ if [ ! $? -eq 0 ]; then
 fi
 
 ## make symbolic link to static input data
-ssh -i $IDENTITY $EVIL "cd $REMOTE_SCRATCH && ln -s /etc/inputs ."
+ssh -i $IDENTITY $EVIL "cd $REMOTE_SCRATCH && ln -s /home/jail/etc/inputs ."
 if [ ! $? -eq 0 ]; then
 	echo "ERROR: could not link to static input data dir"
 	exit 1
 fi
 
-INPUT_PREFIX=000_
-SUNTAINTED_ARGS=""
-for i in `cat $UNTAINTED_ARGS`; do
-
-	ni=$i
-	ii=${JAIL}/etc/inputs/$i
-	if [ -s $ii ]; then
-		ni=$INPUT_PREFIX$i
-		cp $ii $JAIL$REMOTE_SCRATCH/$ni
-	fi
-	SUNTAINTED_ARGS="$SUNTAINTED_ARGS $ni"
-done
-echo $SUNTAINTED_ARGS > $UNTAINTED_ARGS
+#INPUT_PREFIX=000_
+#SUNTAINTED_ARGS=""
+#for i in `cat $UNTAINTED_ARGS`; do
+#
+#	ni=$i
+#	ii=${JAIL}/etc/inputs/$i
+#	if [ -s $ii ]; then
+#		ni=$INPUT_PREFIX$i
+#		cp $ii $JAIL$REMOTE_SCRATCH/$ni
+#	fi
+#	SUNTAINTED_ARGS="$SUNTAINTED_ARGS $ni"
+#done
+#echo $SUNTAINTED_ARGS > $UNTAINTED_ARGS
 
 
 # copy executable file to remote scratch dir
-cp $TAINTED_EXE ${JAIL}${REMOTE_SCRATCH} 2>>/tmp/memme
+cp $TAINTED_EXE ${JAIL}${REMOTE_SCRATCH} 2>>/tmp/ocipol_memme
 if [ ! $? -eq 0 ]; then
 	echo "ERROR: could not send program to remote scratch dir"
 	exit 1
 fi
 # copy arguments file to remote scratch dir
-cp $UNTAINTED_ARGS ${JAIL}${REMOTE_SCRATCH} 2>>/tmp/memmea
-if [ ! $? -eq 0 ]; then
-	echo "ERROR: could not send arguments to remote scratch dir"
-	exit 1
-fi
+#cp $UNTAINTED_ARGS ${JAIL}${REMOTE_SCRATCH} 2>>/tmp/ocipol_memmea
+#if [ ! $? -eq 0 ]; then
+#	echo "ERROR: could not send arguments to remote scratch dir"
+#	exit 1
+#fi
 
 
 TBNAME=`basename $TAINTED_EXE`
-TBARGS=`cat $UNTAINTED_ARGS`
+#TBARGS=`cat $UNTAINTED_ARGS`
 
 #######################
 ##  HERE BE DRAGONS  ##
 #######################
 
 # run the tainted executable on the scratch directory
-REMOTECMD="cd $REMOTE_SCRATCH && PLIMIT_CONFIG_FILE='' $SETRLIM ./$TBNAME $TBARGS >.o 2>.oe ; echo \$? >.or"
+#REMOTECMD="cd $REMOTE_SCRATCH && PLIMIT_CONFIG_FILE='' $SETRLIM ./$TBNAME $TBARGS >.o 2>.oe ; echo \$? >.or"
+REMOTECMD="cd $REMOTE_SCRATCH && PLIMIT_CONFIG_FILE='' $SETRLIM /usr/bin/octave -fq $TBNAME >.o 2>.oe ; echo \$? >.or"
 echo "<!--REMOTECMD=$REMOTECMD-->"
 ssh -i $IDENTITY $EVIL "$REMOTECMD" 2> $LOCAL_SCRATCH/localoe
 if [ ! $? -eq 0 ]; then
@@ -160,9 +161,13 @@ fi
 
 # display gallery contents
 if ls $LOCAL_SCRATCH/*.png 2>/dev/null >/dev/null ; then
+	first=`ls $LOCAL_SCRATCH/*.png|sed 1q`
+	hfirst=`/home/coco/git/scratch/s2p/bin/imprintf %h $first 2>/tmp/what_oe`
 	echo ""
 	echo "<h3>Output images:</h3>"
-	echo "<div class=\"gallery\" style=\"height:600px\">"
+	echo "<!-- first = \"${first}\" -->"
+	echo "<!-- hfirst = \"${hfirst}\" -->"
+	echo "<div class=\"gallery\" style=\"height:${hfirst}px\">"
 	echo "  <ul class=\"index\">"
 	randi=`cat /dev/urandom|od|head|md5sum|cut -c-9`
 	for i in `ls $LOCAL_SCRATCH/*.png`; do
